@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { TodoForm } from './TodoForm'
 import { v4 as uuidv4 } from 'uuid'
 import { Todo } from './Todo'
@@ -6,46 +6,43 @@ import { EditForm } from './EditForm'
 uuidv4()
 
 export const Wrapper = () => {
- 
-    const [todos, setTodos] = useState([]);
 
+  const [todos, setTodos] = useState([])
 
-    const addTodo = (todo) => {
-        setTodos([
-          ...todos,
-          { id: uuidv4(), task: todo, completed: false, isEditing: false },
-        ]);
-      }
+  useEffect(() => {
+      const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+      setTodos(savedTodos);
+  }, []);
 
-      const toggleComplete = (id) => {
-        setTodos(
-          todos.map((todo) =>
-            todo.id === id ? { ...todo, completed: !todo.completed } : todo
-          )
-        );
-      }
+  const addTodo = todo => {
+      const newTodos = [...todos, {id: uuidv4(), task: todo, completed: false, isEditing: false}];
+      setTodos(newTodos);
+      localStorage.setItem('todos', JSON.stringify(newTodos));
+  }
 
-const deleteTodo = id => {
-  setTodos(todos.filter(todo => todo.id !== id))
-}
+  const toggleComplete = id => {
+      const newTodos = todos.map(todo => todo.id === id ? {...todo, completed: !todo.completed} : todo);
+      setTodos(newTodos);
+      localStorage.setItem('todos', JSON.stringify(newTodos));
+  }
 
-const editTodo = id => {
-  setTodos(
-    todos.map((todo) => todo.id === id ? {...todo, isEditing: !todo.isEditing} : todo
-    )
-  )
-}
+  const deleteTodo = id => {
+      const newTodos = todos.filter(todo => todo.id !== id);
+      setTodos(newTodos);
+      localStorage.setItem('todos', JSON.stringify(newTodos));
+  }
 
-const editTask = (task, id) => {
-  setTodos(
-    todos.map((todo) =>
-      todo.id === id ? { ...todo, task, isEditing: !todo.isEditing } : todo
-    )
-  );
-}
-    return (
- 
- <div className="TodoWrapper">
+  const editTodo = id => {
+      setTodos(todos.map(todo => todo.id === id ? {...todo, isEditing: !todo.isEditing} : todo))
+  }
+
+  const editTask = (task, id) => {
+      const newTodos = todos.map(todo => todo.id === id ? {...todo, task, isEditing: !todo.isEditing} : todo);
+      setTodos(newTodos);
+      localStorage.setItem('todos', JSON.stringify(newTodos));
+  }
+return (
+  <div className="TodoWrapper">
     <TodoForm addTodo={addTodo} />
     {todos.map((todo, index) => todo.isEditing? (
       <EditForm editTodo={editTask} task={todo}/>
@@ -61,4 +58,6 @@ const editTask = (task, id) => {
     
     </div>
   )
-}
+
+
+     }
